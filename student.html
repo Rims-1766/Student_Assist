@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StudentAssist Student Dashboard</title>
+  <link rel="stylesheet" href="student-dashboard.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">SA</div>
+      <div>
+        <h2>StudentAssist</h2>
+        <p>Student Portal</p>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <a href="#dashboard">Dashboard</a>
+      <a href="#chatbot">AI Chatbot</a>
+      <a href="#notices">Notices</a>
+      <a href="#events">Events</a>
+      <a href="#exams">Exams</a>
+      <a href="#materials">Materials</a>
+    </nav>
+
+    <button class="logout-btn" type="button" onclick="logout()">Logout</button>
+  </aside>
+
+  <main class="workspace">
+    <header class="topbar" id="dashboard">
+      <div>
+        <span class="eyebrow">Welcome to your academic portal</span>
+        <h1>Student Dashboard</h1>
+        <p>Access chatbot support, notices, schedules, exams, events, and study materials in one place.</p>
+      </div>
+      <div class="profile-chip">
+        <strong id="studentName">Student</strong>
+        <span id="studentEmail">student@college.com</span>
+      </div>
+    </header>
+
+    <section class="metrics">
+      <article class="metric-card">
+        <span>Department</span>
+        <strong>CSE</strong>
+      </article>
+      <article class="metric-card">
+        <span>Semester</span>
+        <strong>4</strong>
+      </article>
+      <article class="metric-card">
+        <span>Unread Notices</span>
+        <strong>4</strong>
+      </article>
+      <article class="metric-card">
+        <span>Upcoming Exams</span>
+        <strong>2</strong>
+      </article>
+    </section>
+
+    <section class="chat-shell" id="chatbot">
+      <aside class="history-panel">
+        <div class="panel-head">
+          <h2>Chat History</h2>
+          <button type="button" onclick="clearHistory()">Clear</button>
+        </div>
+        <div id="historyList" class="history-list"></div>
+      </aside>
+
+      <div class="chat-panel">
+        <div class="chat-header">
+          <div class="assistant-icon">AI</div>
+          <div>
+            <h2>College Assistant</h2>
+            <p>Ask about timetable, fees, exams, placements, facilities, notices, or materials.</p>
+          </div>
+          <span class="online">Online</span>
+        </div>
+
+        <div class="quick-actions">
+          <button type="button" onclick="askBot('What is my timetable?')">Timetable</button>
+          <button type="button" onclick="askBot('What is the semester fee?')">Fees</button>
+          <button type="button" onclick="askBot('When are mid exams?')">Exams</button>
+          <button type="button" onclick="askBot('Show latest notices')">Notices</button>
+          <button type="button" onclick="askBot('What events are upcoming?')">Events</button>
+          <button type="button" onclick="askBot('Which companies are coming for placements?')">Placements</button>
+        </div>
+
+        <div class="messages" id="messages">
+          <div class="message bot">Hello! I am StudentAssist. Ask me any common college query and I will help instantly.</div>
+        </div>
+
+        <form class="chat-input" onsubmit="sendMessage(event)">
+          <input id="chatInput" type="text" placeholder="Type your question here..." autocomplete="off">
+          <button type="submit">Send</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="content-grid">
+      <div class="panel" id="notices">
+        <h2>Latest Notices</h2>
+        <div class="card-list">
+          <article class="info-card">
+            <strong>Mid Exam Hall Tickets</strong>
+            <p>Hall tickets will be issued from the exam cell three days before exams.</p>
+            <span>Exam Cell · 02 Jun 2026</span>
+          </article>
+          <article class="info-card">
+            <strong>Fee Payment Reminder</strong>
+            <p>Semester fee payment closes on 10 Jun 2026. Late fee applies after due date.</p>
+            <span>Accounts · 24 May 2026</span>
+          </article>
+        </div>
+      </div>
+
+      <div class="panel" id="events">
+        <h2>Upcoming Events</h2>
+        <div class="card-list">
+          <article class="info-card">
+            <strong>AI Workshop</strong>
+            <p>Hands-on AIML and chatbot design session in Seminar Hall A.</p>
+            <span>28 May 2026</span>
+          </article>
+          <article class="info-card">
+            <strong>College Fest</strong>
+            <p>Technical, cultural, and sports events with department-wise registrations.</p>
+            <span>14 Jun 2026</span>
+          </article>
+        </div>
+      </div>
+
+      <div class="panel" id="exams">
+        <h2>Exam Schedule</h2>
+        <div class="card-list">
+          <article class="info-card">
+            <strong>Mid Exams</strong>
+            <p>Mid exams start from 05 Jun 2026. Detailed schedule is available on the notice board.</p>
+            <span>All Semesters</span>
+          </article>
+          <article class="info-card">
+            <strong>Semester End Exams</strong>
+            <p>Semester end exams are tentatively scheduled from 01 Jul 2026.</p>
+            <span>Exam Cell</span>
+          </article>
+        </div>
+      </div>
+
+      <div class="panel" id="materials">
+        <h2>Study Materials</h2>
+        <div class="card-list">
+          <article class="info-card">
+            <strong>AIML Unit Notes</strong>
+            <p>Unit 1 and Unit 2 notes are available in the digital library.</p>
+            <span>CSE Semester 4</span>
+          </article>
+          <article class="info-card">
+            <strong>DBMS Syllabus</strong>
+            <p>Includes ER model, SQL, normalization, transactions, and indexing.</p>
+            <span>CSE Semester 4</span>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const replies = [
+      { keys: ["timetable", "schedule", "class"], text: "CSE Semester 4 timetable: Mon DBMS, AIML, Web Lab. Tue OS, Maths, DBMS Lab. Wed AIML, CN, Library. Thu Web Tech, OS Lab. Fri Seminar and project review." },
+      { keys: ["fee", "fees", "payment"], text: "Semester fee is Rs. 42,000. Last date for payment is 10 Jun 2026. You can pay online or at the accounts office." },
+      { keys: ["exam", "mid", "hall ticket", "result"], text: "Mid exams start from 05 Jun 2026. Hall tickets are issued three days before the first exam from the exam cell." },
+      { keys: ["notice", "notices"], text: "Latest notices: Mid Exam Hall Tickets, Fee Payment Reminder, Holiday Notice, and Bonafide Certificate Counter timings." },
+      { keys: ["event", "fest", "workshop"], text: "Upcoming events include AI Workshop on 28 May 2026 and College Fest on 14 Jun 2026." },
+      { keys: ["placement", "company", "companies"], text: "Infosys Campus Drive is scheduled on 18 Jun 2026. TCS Ninja registration is open for eligible final-year students." },
+      { keys: ["library", "lab", "hostel", "office", "certificate", "bonafide"], text: "Library works from 9:00 AM to 6:00 PM. Bonafide certificate applications are accepted at Counter 2 from 10:00 AM to 3:00 PM." },
+      { keys: ["material", "syllabus", "notes"], text: "Available materials include AIML Unit Notes, DBMS Syllabus, and Web Technology Lab Manual." }
+    ];
+
+    const email = localStorage.getItem("studentEmail") || "student@college.com";
+    document.getElementById("studentEmail").textContent = email;
+    document.getElementById("studentName").textContent = email.split("@")[0].replace(/[._0-9]/g, " ") || "Student";
+
+    function sendMessage(event) {
+      event.preventDefault();
+      const input = document.getElementById("chatInput");
+      askBot(input.value.trim());
+      input.value = "";
+    }
+
+    function askBot(question) {
+      if (!question) return;
+      addMessage("user", question);
+      const lower = question.toLowerCase();
+      const match = replies.find(item => item.keys.some(key => lower.includes(key)));
+      const answer = match ? match.text : "I can help with timetable, fees, exams, notices, events, placements, facilities, certificates, and study materials.";
+      window.setTimeout(() => {
+        addMessage("bot", answer);
+        saveHistory(question, answer);
+      }, 350);
+    }
+
+    function addMessage(type, text) {
+      const bubble = document.createElement("div");
+      bubble.className = `message ${type}`;
+      bubble.textContent = text;
+      document.getElementById("messages").appendChild(bubble);
+      document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
+    }
+
+    function saveHistory(question, answer) {
+      const history = JSON.parse(localStorage.getItem("studentChatHistory") || "[]");
+      history.push({ question, answer, time: new Date().toLocaleString() });
+      localStorage.setItem("studentChatHistory", JSON.stringify(history.slice(-10)));
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const history = JSON.parse(localStorage.getItem("studentChatHistory") || "[]").slice().reverse();
+      document.getElementById("historyList").innerHTML = history.map((item, index) => `
+        <button type="button" class="history-item" onclick="replayHistory(${index})">
+          ${escapeHtml(item.question)}
+          <span>${escapeHtml(item.time)}</span>
+        </button>
+      `).join("") || `<p class="empty">No chat history yet.</p>`;
+    }
+
+    function replayHistory(index) {
+      const history = JSON.parse(localStorage.getItem("studentChatHistory") || "[]").slice().reverse();
+      const item = history[index];
+      if (!item) return;
+      addMessage("user", item.question);
+      addMessage("bot", item.answer);
+    }
+
+    function clearHistory() {
+      localStorage.removeItem("studentChatHistory");
+      renderHistory();
+    }
+
+    function logout() {
+      localStorage.removeItem("userRole");
+      window.location.href = "Login.html";
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      }[char]));
+    }
+
+    renderHistory();
+  </script>
+</body>
+</html>
