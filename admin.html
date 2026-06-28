@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StudentAssist Admin Dashboard</title>
+  <link rel="stylesheet" href="admin-dashboard.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">SA</div>
+      <div>
+        <h2>StudentAssist</h2>
+        <p>Admin Portal</p>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <a href="#dashboard">Dashboard</a>
+      <a href="#manage">Manage Records</a>
+      <a href="#students">Students</a>
+      <a href="#preview">Student Preview</a>
+    </nav>
+
+    <button class="logout-btn" type="button" onclick="logout()">Logout</button>
+  </aside>
+
+  <main class="workspace">
+    <header class="topbar" id="dashboard">
+      <div>
+        <span class="eyebrow">Education management system</span>
+        <h1>Admin Dashboard</h1>
+        <p>Add, update, and delete college records used by the StudentAssist chatbot and student dashboard.</p>
+      </div>
+      <div class="profile-chip">
+        <strong>Administrator</strong>
+        <span id="adminEmail">admin@college.com</span>
+      </div>
+    </header>
+
+    <section class="metrics">
+      <article class="metric-card">
+        <span>Total Students</span>
+        <strong id="studentMetric">0</strong>
+      </article>
+      <article class="metric-card">
+        <span>Notices</span>
+        <strong id="noticeMetric">0</strong>
+      </article>
+      <article class="metric-card">
+        <span>Events</span>
+        <strong id="eventMetric">0</strong>
+      </article>
+      <article class="metric-card">
+        <span>Exam Records</span>
+        <strong id="examMetric">0</strong>
+      </article>
+    </section>
+
+    <section class="admin-shell" id="manage">
+      <aside class="domain-panel">
+        <div class="panel-head">
+          <h2>Domains</h2>
+        </div>
+        <div class="domain-list" id="domainList"></div>
+      </aside>
+
+      <div class="record-panel">
+        <div class="record-header">
+          <div>
+            <h2 id="formTitle">Add Notice</h2>
+            <p id="formHint">Manage records for the selected query domain.</p>
+          </div>
+          <button class="secondary-btn" type="button" onclick="resetForm()">New Record</button>
+        </div>
+
+        <form class="record-form" id="recordForm" onsubmit="saveRecord(event)">
+          <div class="input-group">
+            <label for="recordTitle">Title</label>
+            <input id="recordTitle" type="text" placeholder="Enter title" required>
+          </div>
+
+          <div class="input-group">
+            <label for="recordMeta">Department / Venue / Category</label>
+            <input id="recordMeta" type="text" placeholder="Enter related detail" required>
+          </div>
+
+          <div class="input-group">
+            <label for="recordDate">Date</label>
+            <input id="recordDate" type="date" required>
+          </div>
+
+          <div class="input-group full">
+            <label for="recordContent">Details</label>
+            <textarea id="recordContent" placeholder="Enter full record details" required></textarea>
+          </div>
+
+          <button class="primary-btn" type="submit" id="submitBtn">Add Record</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="panel" id="students">
+      <div class="panel-head">
+        <div>
+          <h2>Records</h2>
+          <p id="tableHint">Current records for the selected domain.</p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Detail</th>
+              <th>Date</th>
+              <th>Description</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="recordRows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="content-grid" id="preview">
+      <div class="panel">
+        <h2>Latest Notices</h2>
+        <div class="card-list" id="noticePreview"></div>
+      </div>
+
+      <div class="panel">
+        <h2>Upcoming Events</h2>
+        <div class="card-list" id="eventPreview"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const domains = {
+      notices: "Notices",
+      events: "Events",
+      exams: "Exams",
+      materials: "Materials",
+      students: "Students",
+    };
+
+    const starterData = {
+      notices: [
+        { id: 1, title: "Mid Exam Hall Tickets", meta: "Exam Cell", date: "2026-06-02", content: "Hall tickets will be issued from the exam cell three days before exams." },
+        { id: 2, title: "Fee Payment Reminder", meta: "Accounts", date: "2026-05-24", content: "Semester fee payment closes on 10 Jun 2026. Late fee applies after due date." }
+      ],
+      events: [
+        { id: 1, title: "AI Workshop", meta: "Seminar Hall A", date: "2026-05-28", content: "Hands-on AIML and chatbot design session for students." },
+        { id: 2, title: "College Fest", meta: "Main Ground", date: "2026-06-14", content: "Technical, cultural, and sports events with department-wise registrations." }
+      ],
+      exams: [
+        { id: 1, title: "Mid Exams", meta: "All Semesters", date: "2026-06-05", content: "Mid exams start from 05 Jun 2026. Detailed schedule is available on the notice board." },
+        { id: 2, title: "Semester End Exams", meta: "Exam Cell", date: "2026-07-01", content: "Semester end exams are tentatively scheduled from 01 Jul 2026." }
+      ],
+      materials: [
+        { id: 1, title: "AIML Unit Notes", meta: "CSE Semester 4", date: "2026-05-20", content: "Unit 1 and Unit 2 notes are available in the digital library." },
+        { id: 2, title: "DBMS Syllabus", meta: "CSE Semester 4", date: "2026-05-21", content: "Includes ER model, SQL, normalization, transactions, and indexing." }
+      ],
+      students: [
+        { id: 1, title: "Demo Student", meta: "CSE Semester 4", date: "2026-05-22", content: "student1@college.com | Active portal account" },
+        { id: 2, title: "Ananya Rao", meta: "ECE Semester 4", date: "2026-05-22", content: "ananya.rao@college.com | Scholarship eligible" }
+      ],
+      fees: [
+        { id: 1, title: "Semester Fee", meta: "Semester 4", date: "2026-06-10", content: "The semester fee is Rs. 42,000. Payment can be made online or at the accounts office." },
+        { id: 2, title: "Exam Fee", meta: "All Semesters", date: "2026-06-01", content: "Regular exam fee is Rs. 1,500 per semester. Backlog paper fee is Rs. 450 per subject." }
+      ],
+      timetable: [
+        { id: 1, title: "CSE Semester 4", meta: "Computer Science", date: "2026-05-22", content: "Mon DBMS, AIML, Web Lab. Tue OS, Maths, DBMS Lab. Wed AIML, CN, Library." }
+      ],
+      placements: [
+        { id: 1, title: "Infosys Campus Drive", meta: "60% and above", date: "2026-06-18", content: "Registration closes two days before the drive. Aptitude round followed by technical interview." },
+        { id: 2, title: "TCS Ninja Registration", meta: "Final year", date: "2026-06-05", content: "Students must register through the placement cell form and upload updated resume." }
+      ],
+      facilities: [
+        { id: 1, title: "Library Timings", meta: "Central Block", date: "2026-05-22", content: "Library is open from 9:00 AM to 6:00 PM on working days." },
+        { id: 2, title: "Bonafide Certificate", meta: "Admin Office", date: "2026-05-22", content: "Apply with student ID, fee receipt, and application form. Certificate is issued within two working days." }
+      ]
+    };
+
+    let activeDomain = "notices";
+    let editId = null;
+
+    document.getElementById("adminEmail").textContent = localStorage.getItem("userEmail") || "admin@college.com";
+
+    function getData() {
+      const stored = localStorage.getItem("studentAssistAdminData");
+      if (!stored) {
+        localStorage.setItem("studentAssistAdminData", JSON.stringify(starterData));
+        return structuredClone(starterData);
+      }
+      const parsed = JSON.parse(stored);
+      Object.keys(starterData).forEach(key => {
+        if (!parsed[key]) parsed[key] = starterData[key];
+      });
+      return parsed;
+    }
+
+    function saveData(data) {
+      localStorage.setItem("studentAssistAdminData", JSON.stringify(data));
+    }
+
+    function renderDomains() {
+      document.getElementById("domainList").innerHTML = Object.entries(domains).map(([key, label]) => `
+        <button type="button" class="${key === activeDomain ? "active" : ""}" onclick="selectDomain('${key}')">
+          ${label}
+          <span>${getData()[key].length}</span>
+        </button>
+      `).join("");
+    }
+
+    function selectDomain(domain) {
+      activeDomain = domain;
+      resetForm();
+      render();
+    }
+
+    function saveRecord(event) {
+      event.preventDefault();
+      const data = getData();
+      const payload = {
+        title: document.getElementById("recordTitle").value.trim(),
+        meta: document.getElementById("recordMeta").value.trim(),
+        date: document.getElementById("recordDate").value,
+        content: document.getElementById("recordContent").value.trim()
+      };
+
+      if (editId) {
+        data[activeDomain] = data[activeDomain].map(item => item.id === editId ? { ...item, ...payload } : item);
+      } else {
+        const nextId = Math.max(0, ...data[activeDomain].map(item => item.id)) + 1;
+        data[activeDomain].unshift({ id: nextId, ...payload });
+      }
+
+      saveData(data);
+      resetForm();
+      render();
+    }
+
+    function editRecord(id) {
+      const item = getData()[activeDomain].find(record => record.id === id);
+      if (!item) return;
+      editId = id;
+      document.getElementById("recordTitle").value = item.title;
+      document.getElementById("recordMeta").value = item.meta;
+      document.getElementById("recordDate").value = item.date;
+      document.getElementById("recordContent").value = item.content;
+      document.getElementById("formTitle").textContent = `Update ${domains[activeDomain]}`;
+      document.getElementById("submitBtn").textContent = "Update Record";
+      document.getElementById("manage").scrollIntoView({ behavior: "smooth" });
+    }
+
+    function deleteRecord(id) {
+      if (!confirm("Delete this record?")) return;
+      const data = getData();
+      data[activeDomain] = data[activeDomain].filter(record => record.id !== id);
+      saveData(data);
+      render();
+    }
+
+    function resetForm() {
+      editId = null;
+      document.getElementById("recordForm").reset();
+      document.getElementById("formTitle").textContent = `Add ${domains[activeDomain]}`;
+      document.getElementById("formHint").textContent = `Manage ${domains[activeDomain].toLowerCase()} records for student queries.`;
+      document.getElementById("tableHint").textContent = `Current ${domains[activeDomain].toLowerCase()} records.`;
+      document.getElementById("submitBtn").textContent = "Add Record";
+    }
+
+    function renderRecords() {
+      const rows = getData()[activeDomain];
+      document.getElementById("recordRows").innerHTML = rows.map(record => `
+        <tr>
+          <td>${escapeHtml(record.title)}</td>
+          <td>${escapeHtml(record.meta)}</td>
+          <td>${escapeHtml(record.date)}</td>
+          <td>${escapeHtml(record.content)}</td>
+          <td>
+            <div class="row-actions">
+              <button class="edit-btn" type="button" onclick="editRecord(${record.id})">Edit</button>
+              <button class="delete-btn" type="button" onclick="deleteRecord(${record.id})">Delete</button>
+            </div>
+          </td>
+        </tr>
+      `).join("") || `<tr><td colspan="5">No records available.</td></tr>`;
+    }
+
+    function renderMetrics() {
+      const data = getData();
+      document.getElementById("studentMetric").textContent = data.students.length;
+      document.getElementById("noticeMetric").textContent = data.notices.length;
+      document.getElementById("eventMetric").textContent = data.events.length;
+      document.getElementById("examMetric").textContent = data.exams.length;
+    }
+
+    function renderPreview() {
+      const data = getData();
+      document.getElementById("noticePreview").innerHTML = data.notices.slice(0, 2).map(cardTemplate).join("");
+      document.getElementById("eventPreview").innerHTML = data.events.slice(0, 2).map(cardTemplate).join("");
+    }
+
+    function cardTemplate(item) {
+      return `
+        <article class="info-card">
+          <strong>${escapeHtml(item.title)}</strong>
+          <p>${escapeHtml(item.content)}</p>
+          <span>${escapeHtml(item.meta)} · ${escapeHtml(item.date)}</span>
+        </article>
+      `;
+    }
+
+    function render() {
+      renderDomains();
+      renderRecords();
+      renderMetrics();
+      renderPreview();
+      resetForm();
+    }
+
+    function logout() {
+      localStorage.removeItem("userRole");
+      localStorage.removeItem("userEmail");
+      window.location.href = "Login.html";
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      }[char]));
+    }
+
+    render();
+  </script>
+</body>
+</html>
